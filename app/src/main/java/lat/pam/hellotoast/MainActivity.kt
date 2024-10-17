@@ -8,14 +8,19 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 
 class MainActivity : AppCompatActivity() {
     private var mCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        private val model: NameViewModel by viewModels()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val mShowCount = findViewById<TextView>(R.id.show_count)
@@ -25,9 +30,9 @@ class MainActivity : AppCompatActivity() {
         val buttonBrowser = findViewById<Button>(R.id.button_browser)
 
         buttonCountUp.setOnClickListener {
-            mCount++
-            Log.d("MainActivity", mCount.toString())
-            mShowCount.text = mCount.toString()
+            mCount = mCount + 1
+            if (mShowCount != null)
+            model.currentName.setValue(mCount)
         }
 
         buttonToast.setOnClickListener {
@@ -45,6 +50,13 @@ class MainActivity : AppCompatActivity() {
             intentbrowse.data = Uri.parse("https://www.google.com/")
             startActivity(intentbrowse)
         }
+
+        val nameObserver = Observer<Int> { newName ->
+            mShowCount.text = newName.toString()
+        }
+
+        LifecycleOwner and the observer.
+        model.currentName.observe(this, nameObserver)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
